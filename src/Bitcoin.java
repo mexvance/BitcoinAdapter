@@ -9,8 +9,8 @@ public class Bitcoin implements IBitcoin {
     @Override
     public double getBalance() {
         double total = 0;
-        for (int i=0; i < Transactions.size(); i++){
-            total += (double)Transactions.get(i);
+        for (Object transaction : Transactions) {
+            total += (double) transaction;
         }
         return total;
     }
