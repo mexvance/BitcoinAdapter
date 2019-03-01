@@ -1,12 +1,16 @@
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class Bitcoin implements IBitcoin {
-    ArrayList MyList = new ArrayList<Double>();
-    double  total = 0;
+
+    public Bitcoin () {}
+    Vector Transactions = new Vector<Double>();
+    ArrayList History = new ArrayList<Double>();
     @Override
     public double getBalance() {
-        for (int i=0; i < MyList.size(); i++){
-            total += (double)MyList.get(i);
+        double total = 0;
+        for (int i=0; i < Transactions.size(); i++){
+            total += (double)Transactions.get(i);
         }
         return total;
     }
@@ -15,20 +19,24 @@ public class Bitcoin implements IBitcoin {
     public boolean withdrawal(double amt) {
         //Loop in our array
         var expected = getBalance() - amt;
-        if (getBalance()-amt < 0)
+        if (amt >= getBalance())
         {
             return false;
         }
-        for (int i=0; i < MyList.size(); i++) {
+        History.add(-amt);
+        for (int i=0; i < Transactions.size(); i++) {
             while (amt > 0) {
-                double CoinAmt = (double) MyList.get(i);
+                double CoinAmt = (double) Transactions.get(i);
                 if (amt >= CoinAmt) {
                     amt -= CoinAmt;
-                    MyList.remove(i);
+                    Transactions.remove(i);
                 } else {
                     CoinAmt -= amt;
-                    MyList.remove(i);
-                    MyList.add(CoinAmt);
+
+                    //we used all of amt so now we break out of the loop
+                    amt = 0;
+                    Transactions.remove(i);
+                    Transactions.add(CoinAmt);
                 }
             }
         }
@@ -40,9 +48,14 @@ public class Bitcoin implements IBitcoin {
 
     @Override
     public boolean deposit(double amt) {
-        double expected = getBalance();
-        MyList.add(amt);
-
+        double expected = getBalance() + amt;
+        if (amt < 0)
+        {
+            return false;
+        }
+        Transactions.add(amt);
+        //Add to the transaction history
+        History.add(amt);
         if (expected == getBalance())
             return true;
         else
